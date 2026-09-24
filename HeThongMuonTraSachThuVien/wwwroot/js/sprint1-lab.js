@@ -2,6 +2,7 @@
     const state = {
         loginAttempts: 0,
         lockedUntil: 0,
+        editingUserIndex: null,
         sessionRole: "—",
         sessionStatus: "Chưa đăng nhập",
         users: [
@@ -56,11 +57,7 @@
             { day: "Chủ nhật", open: false }
         ],
         dueDate: "2026-09-30",
-        auditLogs: [
-            { time: "2026-09-23 08:15", actor: "admin@thuvien.local", action: "Đăng nhập", target: "Hệ thống" },
-            { time: "2026-09-23 09:10", actor: "thuthu@thuvien.local", action: "Cấp thẻ", target: "TV-0001" },
-            { time: "2026-09-23 09:35", actor: "quanly@thuvien.local", action: "Sửa", target: "Chính sách mượn" }
-        ]
+        auditLogs: []
     };
 
     const $ = (id) => document.getElementById(id);
@@ -98,13 +95,21 @@
         }, 3500);
     }
 
-    function addAudit(action, target) {
-        state.auditLogs.unshift({
-            time: todayStamp(),
-            actor: state.sessionRole === "—" ? "Hệ thống" : state.sessionRole,
-            action,
-            target
-        });
+    async function addAudit(action, target) {
+        const actor = state.sessionRole === "—" ? "Hệ thống" : state.sessionRole;
+        try {
+            await fetch("/api/NhatKy", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    tenNguoiThucHien: actor,
+                    hanhDong: action,
+                    doiTuong: target
+                })
+            });
+        } catch (err) {
+            console.error("Không thể ghi nhật ký:", err);
+        }
         renderAudit();
     }
 
@@ -120,14 +125,43 @@
 
     function renderUsers() {
         const tbody = $("userTableBody");
-        tbody.innerHTML = state.users.map((u) => `
+        tbody.innerHTML = state.users.map((u, idx) => `
             <tr>
                 <td>${escapeHtml(u.name)}</td>
                 <td>${escapeHtml(u.email)}</td>
                 <td><span class="badge ${u.role === "Admin" ? "bg-danger" : "bg-info text-dark"}">${escapeHtml(u.role)}</span></td>
                 <td><span class="badge ${u.status === "Active" ? "bg-success" : u.status === "Locked" ? "bg-danger" : "bg-warning text-dark"}">${escapeHtml(u.status)}</span></td>
+                <td><button type="button" class="btn btn-outline-primary btn-sm btn-edit-user" data-index="${idx}">Sửa</button></td>
             </tr>
         `).join("");
+
+        tbody.querySelectorAll(".btn-edit-user").forEach((btn) => {
+            btn.addEventListener("click", () => startEditUser(Number(btn.dataset.index)));
+        });
+    }
+
+    function startEditUser(index) {
+        const u = state.users[index];
+        if (!u) return;
+        state.editingUserIndex = index;
+        $("newUserName").value = u.name;
+        $("newUserEmail").value = u.email;
+        $("newUserPhone").value = u.phone || "";
+        $("newUserRole").value = u.role;
+        $("newUserStatus").value = u.status;
+        $("btnAddUser").textContent = "Cập nhật tài khoản";
+        $("btnCancelEditUser").classList.remove("d-none");
+    }
+
+    function cancelEditUser() {
+        state.editingUserIndex = null;
+        $("newUserName").value = "";
+        $("newUserEmail").value = "";
+        $("newUserPhone").value = "";
+        $("newUserRole").value = "ThuThu";
+        $("newUserStatus").value = "Active";
+        $("btnAddUser").textContent = "Tạo tài khoản";
+        $("btnCancelEditUser").classList.add("d-none");
     }
 
     function renderPendingReaders() {
@@ -252,27 +286,76 @@
         });
     }
 
-    function renderAudit() {
-        const actor = $("auditActorFilter").value.trim().toLowerCase();
+    function formatAuditTime(iso) {
+        const d = new Date(iso);
+        const pad = (n) => String(n).padStart(2, "0");
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    }
+
+    async function renderAudit() {
+        const tbody = $("auditTableBody");
+
+        // S1-10: Chỉ Quản trị hệ thống (Admin) được xem nhật ký hoạt động.
+        if (state.sessionRole !== "Admin") {
+            state.auditLogs = [];
+            $("auditCount").textContent = "-";
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="5" class="text-center text-muted py-4">
+                        Chỉ Quản trị hệ thống (Admin) được phép xem nhật ký hoạt động.
+                        Vui lòng đăng nhập bằng tài khoản Admin.
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        const actor = $("auditActorFilter").value.trim();
         const action = $("auditActionFilter").value;
         const from = $("auditFromFilter").value;
         const to = $("auditToFilter").value;
 
-        const filtered = state.auditLogs.filter((l) => {
-            const byActor = !actor || l.actor.toLowerCase().includes(actor);
-            const byAction = !action || l.action === action;
-            const byFrom = !from || l.time >= `${from} 00:00`;
-            const byTo = !to || l.time <= `${to} 23:59`;
-            return byActor && byAction && byFrom && byTo;
-        });
+        const params = new URLSearchParams();
+        if (actor) params.set("nguoiThucHien", actor);
+        if (action) params.set("hanhDong", action);
+        if (from) params.set("tuNgay", from);
+        if (to) params.set("denNgay", to);
+
+        let filtered = [];
+        try {
+            const res = await fetch(`/api/NhatKy?${params.toString()}`, {
+                headers: { "X-Actor-Role": state.sessionRole }
+            });
+
+            if (res.status === 403) {
+                $("auditCount").textContent = "-";
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-4">
+                            Bạn không có quyền xem nhật ký hoạt động.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            if (res.ok) {
+                filtered = await res.json();
+            }
+        } catch (err) {
+            console.error("Không thể tải nhật ký:", err);
+        }
+
+        state.auditLogs = filtered;
 
         $("auditCount").textContent = filtered.length;
-        $("auditTableBody").innerHTML = filtered.map((l) => `
+        tbody.innerHTML = filtered.map((l) => `
             <tr>
-                <td>${escapeHtml(l.time)}</td>
-                <td>${escapeHtml(l.actor)}</td>
-                <td>${escapeHtml(l.action)}</td>
-                <td>${escapeHtml(l.target)}</td>
+                <td>${escapeHtml(formatAuditTime(l.thoiGian))}</td>
+                <td>${escapeHtml(l.tenNguoiThucHien)}</td>
+                <td>${escapeHtml(l.hanhDong)}</td>
+                <td>${escapeHtml(l.doiTuong ?? "")}</td>
+                <td>${escapeHtml(l.diaChiIP ?? "")}</td>
             </tr>
         `).join("");
     }
@@ -375,22 +458,35 @@
             return;
         }
 
-        if (state.users.some(u => u.email.toLowerCase() === email.toLowerCase())) {
+        const isEditing = state.editingUserIndex !== null && state.editingUserIndex !== undefined;
+
+        const duplicated = state.users.some((u, idx) =>
+            u.email.toLowerCase() === email.toLowerCase() && idx !== state.editingUserIndex
+        );
+        if (duplicated) {
             showToast("danger", "Email bị trùng", "Email này đã có trong hệ thống mô phỏng.");
             return;
         }
 
+        if (isEditing) {
+            state.users[state.editingUserIndex] = { name, email, role, status, phone };
+            renderUsers();
+            addAudit("Sửa tài khoản", `Tài khoản ${email}`);
+            showToast("success", "Đã cập nhật tài khoản", `${name} đã được cập nhật.`);
+            cancelEditUser();
+            return;
+        }
+
         state.users.unshift({ name, email, role, status, phone });
-        $("newUserName").value = "";
-        $("newUserEmail").value = "";
-        $("newUserPhone").value = "";
-        $("newUserRole").value = "ThuThu";
-        $("newUserStatus").value = "Active";
         renderUsers();
-        addAudit("Thêm", `Tài khoản ${email}`);
+        addAudit("Tạo tài khoản", `Tài khoản ${email}`);
         showToast("success", "Đã tạo tài khoản", `${name} đã được thêm vào danh sách.`);
+        cancelEditUser();
     });
 
+    $("btnCancelEditUser").addEventListener("click", () => {
+        cancelEditUser();
+    });
     $("btnSignup").addEventListener("click", () => {
         const name = $("signupName").value.trim();
         const dob = $("signupDob").value;
@@ -454,7 +550,7 @@
         state.pendingReaders = state.pendingReaders.filter(x => x.id !== selectedId);
         renderPendingReaders();
         renderCards();
-        addAudit("Thêm", `Cấp thẻ ${cardNo}`);
+        addAudit("Cấp thẻ", `Thẻ ${cardNo} - Bạn đọc ${reader.name}`);
         showToast("success", "Đã cấp thẻ", `Sinh mã thẻ ${cardNo}`);
     });
 
@@ -495,7 +591,7 @@
 
         state.policies.unshift(item);
         renderPolicies();
-        addAudit("Sửa", `Chính sách ${item.type}`);
+        addAudit("Sửa chính sách mượn", `Chính sách mượn - Loại thẻ ${item.type}`);
         showToast("success", "Đã lưu chính sách", "Bản ghi mới đã được thêm vào đầu danh sách.");
     });
 
@@ -607,13 +703,22 @@
         showToast("secondary", "Đã reset bộ lọc", "Bộ lọc nhật ký đã được xoá.");
     });
 
-    $("btnAddAuditSample").addEventListener("click", () => {
-        state.auditLogs.unshift(
-            { time: todayStamp(), actor: "admin@thuvien.local", action: "Đăng nhập", target: "Hệ thống" },
-            { time: todayStamp(), actor: "thuthu@thuvien.local", action: "Thêm", target: "Cấp thẻ" }
-        );
+    $("btnAddAuditSample").addEventListener("click", async () => {
+        const samples = [
+            { tenNguoiThucHien: "admin@thuvien.local", hanhDong: "Đăng nhập", doiTuong: "Hệ thống" },
+            { tenNguoiThucHien: "thuthu@thuvien.local", hanhDong: "Thêm", doiTuong: "Cấp thẻ" }
+        ];
+        try {
+            await Promise.all(samples.map((s) => fetch("/api/NhatKy", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(s)
+            })));
+            showToast("success", "Đã sinh log mẫu", "Thêm 2 dòng nhật ký vào hệ thống.");
+        } catch (err) {
+            showToast("danger", "Lỗi", "Không thể ghi nhật ký mẫu.");
+        }
         renderAudit();
-        showToast("success", "Đã sinh log mẫu", "Thêm 2 dòng nhật ký mô phỏng.");
     });
 
     ["auditActorFilter", "auditActionFilter", "auditFromFilter", "auditToFilter"].forEach((id) => {

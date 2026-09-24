@@ -151,23 +151,25 @@
                                         <option value="Locked">Locked</option>
                                     </select>
                                 </div>
-                                <button id="btnAddUser" type="button" class="btn btn-success w-100">Tạo tài khoản</button>
+                                <div class="d-flex gap-2">
+                                    <button id="btnAddUser" type="button" class="btn btn-success flex-fill">Tạo tài khoản</button>
+                                    <button id="btnCancelEditUser" type="button" class="btn btn-outline-secondary d-none">Huỷ</button>
+                                </div>
                             </div>
                         </div>
                         <div class="col-lg-8">
-                            <div class="table-responsive">
-                                <table class="table table-striped align-middle">
-                                    <thead>
-                                        <tr>
-                                            <th>Họ tên</th>
-                                            <th>Email</th>
-                                            <th>Vai trò</th>
-                                            <th>Trạng thái</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="userTableBody"></tbody>
-                                </table>
-                            </div>
+                            <table class="table table-striped align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Họ tên</th>
+                                        <th>Email</th>
+                                        <th>Vai trò</th>
+                                        <th>Trạng thái</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="userTableBody"></tbody>
+                            </table>
                             <div class="small text-muted">Các thay đổi trong màn này chỉ nằm trên UI test.</div>
                         </div>
                     </div>
@@ -591,6 +593,10 @@
                                         <option>Sửa</option>
                                         <option>Xóa</option>
                                         <option>Xem</option>
+                                        <option>Tạo tài khoản</option>
+                                        <option>Sửa tài khoản</option>
+                                        <option>Cấp thẻ</option>
+                                        <option>Sửa chính sách mượn</option>
                                         <option>Khác</option>
                                     </select>
                                 </div>
@@ -623,6 +629,7 @@
                                             <th>Người thực hiện</th>
                                             <th>Hành động</th>
                                             <th>Đối tượng</th>
+                                            <th>Địa chỉ IP</th>
                                         </tr>
                                     </thead>
                                     <tbody id="auditTableBody"></tbody>
