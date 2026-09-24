@@ -1,0 +1,5 @@
+CREATE DATABASE ThuVienDB;
+GO
+
+USE ThuVienDB;
+GO
