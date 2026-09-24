@@ -1,0 +1,641 @@
+﻿@{
+    ViewData["Title"] = "Sprint 1 Playground";
+}
+
+<div class="container-fluid py-4">
+    <div id="toastHost" class="position-fixed top-0 end-0 p-3" style="z-index: 1080;"></div>
+
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body p-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <div>
+                    <div class="text-uppercase text-primary fw-bold small">Sprint 1 UI Playground</div>
+                    <h1 class="h3 mb-2">Hệ thống mượn trả sách thư viện</h1>
+                    <p class="text-muted mb-0">
+                        Màn hình test giao diện độc lập cho cả team, không đụng backend.
+                    </p>
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                    <span class="badge bg-primary">Login</span>
+                    <span class="badge bg-success">Users</span>
+                    <span class="badge bg-info text-dark">Reader</span>
+                    <span class="badge bg-warning text-dark">Policy</span>
+                    <span class="badge bg-secondary">Audit</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body p-3">
+            <div class="d-flex flex-wrap gap-2">
+                <a href="#story01" class="btn btn-outline-primary btn-sm">S1-01 Login</a>
+                <a href="#story02" class="btn btn-outline-primary btn-sm">S1-02 Users</a>
+                <a href="#story03" class="btn btn-outline-primary btn-sm">S1-03 Signup</a>
+                <a href="#story04" class="btn btn-outline-primary btn-sm">S1-04 Card</a>
+                <a href="#story05" class="btn btn-outline-primary btn-sm">S1-05 Policy</a>
+                <a href="#story06" class="btn btn-outline-primary btn-sm">S1-06 Profile</a>
+                <a href="#story07" class="btn btn-outline-primary btn-sm">S1-07 Reset</a>
+                <a href="#story08" class="btn btn-outline-primary btn-sm">S1-08 Taxonomy</a>
+                <a href="#story09" class="btn btn-outline-primary btn-sm">S1-09 Shelf</a>
+                <a href="#story10" class="btn btn-outline-primary btn-sm">S1-10 Audit</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-12" id="story01">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                        <div>
+                            <h2 class="h5 mb-1">S1-01 · Đăng nhập bằng email/mật khẩu và khoá tạm khi sai nhiều lần</h2>
+                            <div class="text-muted small">Story test cho Admin / Quản lý / Thủ thư / Bạn đọc</div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <span class="badge bg-secondary" id="loginAttemptsBadge">Sai: 0/5</span>
+                            <span class="badge bg-dark" id="loginLockBadge">Khoá: 0 phút</span>
+                            <span class="badge bg-success" id="loginRoleBadge">Vai trò: —</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-lg-6">
+                            <div class="card border-0 bg-light">
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label class="form-label">Email</label>
+                                        <input id="loginEmail" class="form-control" type="email" value="admin@thuvien.local" />
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Mật khẩu</label>
+                                        <input id="loginPassword" class="form-control" type="password" value="123456" />
+                                    </div>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <button id="btnLogin" type="button" class="btn btn-primary">Đăng nhập</button>
+                                        <button id="btnLogout" type="button" class="btn btn-outline-secondary">Đăng xuất</button>
+                                        <button id="btnResetLogin" type="button" class="btn btn-outline-danger">Reset</button>
+                                    </div>
+                                    <div class="mt-3 alert alert-info mb-0" id="loginMessage">Chưa đăng nhập.</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="p-3 border rounded-3 bg-white">
+                                        <div class="text-muted small">Session role</div>
+                                        <div class="fw-bold" id="sessionRoleText">—</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="p-3 border rounded-3 bg-white">
+                                        <div class="text-muted small">Lock status</div>
+                                        <div class="fw-bold" id="lockStatusText">Không khoá</div>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="p-3 border rounded-3 bg-white">
+                                        <div class="text-muted small mb-1">Acceptance test</div>
+                                        <ul class="mb-0 small">
+                                            <li>Sai 5 lần liên tiếp → khoá 15 phút.</li>
+                                            <li>Đăng nhập hợp lệ → hiện vai trò mô phỏng.</li>
+                                            <li>Đăng xuất → reset trạng thái phiên.</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12" id="story02">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3">
+                    <h2 class="h5 mb-1">S1-02 · Tạo tài khoản nội bộ và gán vai trò</h2>
+                    <div class="text-muted small">Tạo tài khoản cho Quản lý / Thủ thư / Admin</div>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-lg-4">
+                            <div class="border rounded-3 p-3 bg-light h-100">
+                                <div class="mb-2 fw-semibold">Form tạo tài khoản</div>
+                                <div class="mb-2">
+                                    <label class="form-label">Họ tên</label>
+                                    <input id="newUserName" class="form-control" type="text" placeholder="Nguyễn Văn A" />
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label">Email</label>
+                                    <input id="newUserEmail" class="form-control" type="email" placeholder="user@thuvien.local" />
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label">Số điện thoại</label>
+                                    <input id="newUserPhone" class="form-control" type="text" placeholder="0909..." />
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label">Vai trò</label>
+                                    <select id="newUserRole" class="form-select">
+                                        <option value="QuanLy">QuanLy</option>
+                                        <option value="ThuThu">ThuThu</option>
+                                        <option value="Admin">Admin</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Trạng thái</label>
+                                    <select id="newUserStatus" class="form-select">
+                                        <option value="Active">Active</option>
+                                        <option value="Pending">Pending</option>
+                                        <option value="Locked">Locked</option>
+                                    </select>
+                                </div>
+                                <button id="btnAddUser" type="button" class="btn btn-success w-100">Tạo tài khoản</button>
+                            </div>
+                        </div>
+                        <div class="col-lg-8">
+                            <div class="table-responsive">
+                                <table class="table table-striped align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th>Họ tên</th>
+                                            <th>Email</th>
+                                            <th>Vai trò</th>
+                                            <th>Trạng thái</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="userTableBody"></tbody>
+                                </table>
+                            </div>
+                            <div class="small text-muted">Các thay đổi trong màn này chỉ nằm trên UI test.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12" id="story03">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3">
+                    <h2 class="h5 mb-1">S1-03 · Bạn đọc tự đăng ký tài khoản</h2>
+                    <div class="text-muted small">Hồ sơ được đưa vào danh sách chờ duyệt</div>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-lg-5">
+                            <div class="border rounded-3 p-3 bg-light">
+                                <div class="fw-semibold mb-2">Form đăng ký</div>
+                                <div class="mb-2">
+                                    <label class="form-label">Họ tên</label>
+                                    <input id="signupName" class="form-control" />
+                                </div>
+                                <div class="row g-2">
+                                    <div class="col-md-6 mb-2">
+                                        <label class="form-label">Ngày sinh</label>
+                                        <input id="signupDob" class="form-control" type="date" />
+                                    </div>
+                                    <div class="col-md-6 mb-2">
+                                        <label class="form-label">Mã sinh viên / cán bộ</label>
+                                        <input id="signupCode" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label">Email</label>
+                                    <input id="signupEmail" class="form-control" type="email" />
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label">Số điện thoại</label>
+                                    <input id="signupPhone" class="form-control" />
+                                </div>
+                                <div class="row g-2">
+                                    <div class="col-md-6 mb-2">
+                                        <label class="form-label">Mật khẩu</label>
+                                        <input id="signupPassword" class="form-control" type="password" />
+                                    </div>
+                                    <div class="col-md-6 mb-2">
+                                        <label class="form-label">Nhập lại mật khẩu</label>
+                                        <input id="signupPassword2" class="form-control" type="password" />
+                                    </div>
+                                </div>
+                                <button id="btnSignup" type="button" class="btn btn-primary w-100">Gửi đăng ký</button>
+                            </div>
+                        </div>
+                        <div class="col-lg-7">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th>Mã hồ sơ</th>
+                                            <th>Họ tên</th>
+                                            <th>Mã SV/CB</th>
+                                            <th>Email</th>
+                                            <th>Trạng thái</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="pendingTableBody"></tbody>
+                                </table>
+                            </div>
+                            <div class="small text-muted">Đăng ký xong sẽ vào trạng thái chờ duyệt để thủ thư xử lý.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12" id="story04">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3">
+                    <h2 class="h5 mb-1">S1-04 · Duyệt hồ sơ và cấp thẻ thư viện</h2>
+                    <div class="text-muted small">Sinh mã thẻ duy nhất và không cho sửa mã thẻ sau khi cấp</div>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-lg-4">
+                            <div class="border rounded-3 p-3 bg-light">
+                                <div class="fw-semibold mb-2">Duyệt hồ sơ</div>
+                                <div class="mb-2">
+                                    <label class="form-label">Chọn hồ sơ chờ duyệt</label>
+                                    <select id="pendingSelect" class="form-select"></select>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label">Loại thẻ</label>
+                                    <select id="cardTypeSelect" class="form-select">
+                                        <option>Sinh viên</option>
+                                        <option>Giảng viên</option>
+                                        <option>Học viên</option>
+                                        <option>Khách</option>
+                                        <option>Thành viên VIP</option>
+                                    </select>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label">Ngày hết hạn</label>
+                                    <input id="cardExpiry" class="form-control" type="date" />
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label">Lý do từ chối</label>
+                                    <input id="rejectReason" class="form-control" />
+                                </div>
+                                <button id="btnApproveCard" type="button" class="btn btn-success w-100 mb-2">Duyệt & cấp thẻ</button>
+                                <button id="btnRejectCard" type="button" class="btn btn-outline-danger w-100">Từ chối hồ sơ</button>
+                            </div>
+                        </div>
+                        <div class="col-lg-8">
+                            <div class="table-responsive">
+                                <table class="table table-bordered align-middle">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Mã thẻ</th>
+                                            <th>Bạn đọc</th>
+                                            <th>Loại thẻ</th>
+                                            <th>Ngày hết hạn</th>
+                                            <th>Trạng thái</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="cardTableBody"></tbody>
+                                </table>
+                            </div>
+                            <div class="small text-muted">Mỗi thẻ chỉ mô phỏng bằng dữ liệu local, chưa gọi backend.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12" id="story05">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3">
+                    <h2 class="h5 mb-1">S1-05 · Khai báo loại thẻ và chính sách mượn</h2>
+                    <div class="text-muted small">Một loại thẻ có thể có nhiều bản chính sách theo thời gian</div>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-lg-4">
+                            <div class="border rounded-3 p-3 bg-light">
+                                <div class="fw-semibold mb-2">Thêm chính sách</div>
+                                <div class="mb-2">
+                                    <label class="form-label">Loại thẻ</label>
+                                    <select id="policyCardType" class="form-select">
+                                        <option>Sinh viên</option>
+                                        <option>Giảng viên</option>
+                                        <option>Học viên</option>
+                                        <option>Khách</option>
+                                        <option>Thành viên VIP</option>
+                                    </select>
+                                </div>
+                                <div class="row g-2">
+                                    <div class="col-4 mb-2">
+                                        <label class="form-label">Sách tối đa</label>
+                                        <input id="policyMaxBooks" class="form-control" type="number" min="1" value="5" />
+                                    </div>
+                                    <div class="col-4 mb-2">
+                                        <label class="form-label">Ngày mượn</label>
+                                        <input id="policyLoanDays" class="form-control" type="number" min="1" value="14" />
+                                    </div>
+                                    <div class="col-4 mb-2">
+                                        <label class="form-label">Gia hạn</label>
+                                        <input id="policyExtendTimes" class="form-control" type="number" min="0" value="1" />
+                                    </div>
+                                </div>
+                                <div class="row g-2">
+                                    <div class="col-4 mb-2">
+                                        <label class="form-label">Phạt trễ</label>
+                                        <input id="policyDailyFine" class="form-control" type="number" min="0" value="0" />
+                                    </div>
+                                    <div class="col-4 mb-2">
+                                        <label class="form-label">Phạt mất</label>
+                                        <input id="policyLostFine" class="form-control" type="number" min="0" value="0" />
+                                    </div>
+                                    <div class="col-4 mb-2">
+                                        <label class="form-label">Phạt hỏng</label>
+                                        <input id="policyDamageFine" class="form-control" type="number" min="0" value="0" />
+                                    </div>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label">Ngày áp dụng</label>
+                                    <input id="policyEffectiveFrom" class="form-control" type="date" />
+                                </div>
+                                <button id="btnAddPolicy" type="button" class="btn btn-warning w-100">Lưu chính sách</button>
+                            </div>
+                        </div>
+                        <div class="col-lg-8">
+                            <div class="table-responsive">
+                                <table class="table table-striped align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th>Loại thẻ</th>
+                                            <th>Sách</th>
+                                            <th>Ngày</th>
+                                            <th>Gia hạn</th>
+                                            <th>Phạt trễ/ngày</th>
+                                            <th>Hiệu lực</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="policyTableBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12" id="story06">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3">
+                    <h2 class="h5 mb-1">S1-06 · Xem/sửa thông tin liên hệ và đổi mật khẩu</h2>
+                    <div class="text-muted small">Chỉ sửa email, số điện thoại, địa chỉ; đổi mật khẩu ở khung bên phải</div>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-lg-6">
+                            <div class="border rounded-3 p-3 bg-light">
+                                <div class="fw-semibold mb-2">Trang cá nhân</div>
+                                <div class="row g-2">
+                                    <div class="col-6 mb-2">
+                                        <label class="form-label">Mã thẻ</label>
+                                        <input id="profileCardId" class="form-control" readonly />
+                                    </div>
+                                    <div class="col-6 mb-2">
+                                        <label class="form-label">Loại thẻ</label>
+                                        <input id="profileCardType" class="form-control" readonly />
+                                    </div>
+                                    <div class="col-6 mb-2">
+                                        <label class="form-label">Ngày hết hạn</label>
+                                        <input id="profileCardExpiry" class="form-control" readonly />
+                                    </div>
+                                    <div class="col-6 mb-2">
+                                        <label class="form-label">Trạng thái</label>
+                                        <input id="profileCardStatus" class="form-control" readonly />
+                                    </div>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label">Họ tên</label>
+                                    <input id="profileName" class="form-control" readonly />
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label">Email</label>
+                                    <input id="profileEmail" class="form-control" type="email" />
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label">Số điện thoại</label>
+                                    <input id="profilePhone" class="form-control" />
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label">Địa chỉ</label>
+                                    <textarea id="profileAddress" class="form-control" rows="3"></textarea>
+                                </div>
+                                <button id="btnSaveProfile" type="button" class="btn btn-primary w-100">Lưu hồ sơ</button>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="border rounded-3 p-3 bg-light">
+                                <div class="fw-semibold mb-2">Đổi mật khẩu</div>
+                                <div class="mb-2">
+                                    <label class="form-label">Mật khẩu hiện tại</label>
+                                    <input id="currentPassword" class="form-control" type="password" />
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label">Mật khẩu mới</label>
+                                    <input id="newPassword" class="form-control" type="password" />
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Nhập lại mật khẩu mới</label>
+                                    <input id="confirmPassword" class="form-control" type="password" />
+                                </div>
+                                <button id="btnChangePassword" type="button" class="btn btn-success w-100">Đổi mật khẩu</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12" id="story07">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3">
+                    <h2 class="h5 mb-1">S1-07 · Quên mật khẩu qua email</h2>
+                    <div class="text-muted small">Gửi link đặt lại hiệu lực 30 phút, chỉ dùng 1 lần (mô phỏng)</div>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-lg-4">
+                            <div class="border rounded-3 p-3 bg-light">
+                                <label class="form-label">Email đã đăng ký</label>
+                                <input id="resetEmail" class="form-control mb-3" type="email" />
+                                <button id="btnResetPassword" type="button" class="btn btn-outline-primary w-100">Gửi link đặt lại</button>
+                            </div>
+                        </div>
+                        <div class="col-lg-8">
+                            <div id="resetLogArea" class="list-group"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12" id="story08">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3">
+                    <h2 class="h5 mb-1">S1-08 · Khai báo tác giả và thể loại</h2>
+                    <div class="text-muted small">Danh mục để biên mục sách, không xoá nếu đang được dùng</div>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-lg-6">
+                            <div class="border rounded-3 p-3 bg-light">
+                                <div class="fw-semibold mb-2">Tác giả</div>
+                                <div class="input-group mb-3">
+                                    <input id="authorInput" class="form-control" placeholder="Nhập tên tác giả" />
+                                    <button id="btnAddAuthor" type="button" class="btn btn-primary">Thêm</button>
+                                </div>
+                                <div id="authorTags" class="d-flex flex-wrap gap-2"></div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="border rounded-3 p-3 bg-light">
+                                <div class="fw-semibold mb-2">Thể loại</div>
+                                <div class="input-group mb-3">
+                                    <input id="genreInput" class="form-control" placeholder="Nhập tên thể loại" />
+                                    <button id="btnAddGenre" type="button" class="btn btn-success">Thêm</button>
+                                </div>
+                                <div id="genreTags" class="d-flex flex-wrap gap-2"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12" id="story09">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3">
+                    <h2 class="h5 mb-1">S1-09 · Khai báo kho, kệ và lịch đóng cửa</h2>
+                    <div class="text-muted small">Hạn trả đẩy sang ngày mở cửa kế tiếp (mô phỏng)</div>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-lg-4">
+                            <div class="border rounded-3 p-3 bg-light mb-3">
+                                <div class="fw-semibold mb-2">Thêm kệ</div>
+                                <div class="mb-2">
+                                    <label class="form-label">Kho</label>
+                                    <select id="warehouseInput" class="form-select">
+                                        <option>KHO A</option>
+                                        <option>KHO B</option>
+                                        <option>KHO C</option>
+                                    </select>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label">Mã kệ</label>
+                                    <input id="shelfInput" class="form-control" placeholder="A-03" />
+                                </div>
+                                <button id="btnAddShelf" type="button" class="btn btn-warning w-100">Thêm kệ</button>
+                            </div>
+                            <div class="border rounded-3 p-3 bg-light">
+                                <div class="fw-semibold mb-2">Hạn trả mô phỏng</div>
+                                <div class="mb-2">
+                                    <label class="form-label">Ngày hiện tại</label>
+                                    <input id="dueDateInput" class="form-control" type="date" />
+                                </div>
+                                <button id="btnMoveDueDate" type="button" class="btn btn-outline-warning w-100">Đẩy sang ngày mở cửa kế tiếp</button>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="table-responsive">
+                                <table class="table table-bordered align-middle">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Kho</th>
+                                            <th>Mã kệ</th>
+                                            <th>Trạng thái</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="shelfTableBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="border rounded-3 p-3 bg-light">
+                                <div class="fw-semibold mb-2">Lịch đóng cửa</div>
+                                <div id="closureList" class="list-group"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12" id="story10">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white py-3">
+                    <h2 class="h5 mb-1">S1-10 · Tra nhật ký hoạt động</h2>
+                    <div class="text-muted small">Lọc theo người thực hiện, loại hành động và khoảng ngày</div>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-lg-4">
+                            <div class="border rounded-3 p-3 bg-light">
+                                <div class="fw-semibold mb-2">Bộ lọc</div>
+                                <div class="mb-2">
+                                    <label class="form-label">Người thực hiện</label>
+                                    <input id="auditActorFilter" class="form-control" placeholder="admin / thuthu / quanly..." />
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label">Hành động</label>
+                                    <select id="auditActionFilter" class="form-select">
+                                        <option value="">Tất cả</option>
+                                        <option>Đăng nhập</option>
+                                        <option>Đăng xuất</option>
+                                        <option>Thêm</option>
+                                        <option>Sửa</option>
+                                        <option>Xóa</option>
+                                        <option>Xem</option>
+                                        <option>Khác</option>
+                                    </select>
+                                </div>
+                                <div class="row g-2">
+                                    <div class="col-6 mb-2">
+                                        <label class="form-label">Từ ngày</label>
+                                        <input id="auditFromFilter" class="form-control" type="date" />
+                                    </div>
+                                    <div class="col-6 mb-2">
+                                        <label class="form-label">Đến ngày</label>
+                                        <input id="auditToFilter" class="form-control" type="date" />
+                                    </div>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <button id="btnFilterAudit" type="button" class="btn btn-primary flex-fill">Lọc</button>
+                                    <button id="btnResetAudit" type="button" class="btn btn-outline-secondary">Reset</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-8">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div class="small text-muted">Kết quả: <span id="auditCount">0</span> dòng</div>
+                                <button id="btnAddAuditSample" type="button" class="btn btn-outline-dark btn-sm">Sinh log mẫu</button>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-striped align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th>Thời gian</th>
+                                            <th>Người thực hiện</th>
+                                            <th>Hành động</th>
+                                            <th>Đối tượng</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="auditTableBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/sprint1-lab.js" asp-append-version="true"></script>
+}
