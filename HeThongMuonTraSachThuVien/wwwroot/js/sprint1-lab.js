@@ -123,22 +123,57 @@
         $("loginMessage").textContent = state.sessionStatus;
     }
 
-    function renderUsers() {
-        const tbody = $("userTableBody");
-        tbody.innerHTML = state.users.map((u, idx) => `
-            <tr>
-                <td>${escapeHtml(u.name)}</td>
-                <td>${escapeHtml(u.email)}</td>
-                <td><span class="badge ${u.role === "Admin" ? "bg-danger" : "bg-info text-dark"}">${escapeHtml(u.role)}</span></td>
-                <td><span class="badge ${u.status === "Active" ? "bg-success" : u.status === "Locked" ? "bg-danger" : "bg-warning text-dark"}">${escapeHtml(u.status)}</span></td>
-                <td><button type="button" class="btn btn-outline-primary btn-sm btn-edit-user" data-index="${idx}">Sửa</button></td>
-            </tr>
-        `).join("");
+function renderUsers(users) {
+    const tbody = $("userTableBody");
 
-        tbody.querySelectorAll(".btn-edit-user").forEach((btn) => {
-            btn.addEventListener("click", () => startEditUser(Number(btn.dataset.index)));
-        });
+    if (!users || users.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="4" class="text-center text-muted py-4">
+                    Chưa có tài khoản.
+                </td>
+            </tr>
+        `;
+        return;
     }
+
+    tbody.innerHTML = users.map((u) => {
+        let roleText = u.vaiTro;
+
+        if (u.vaiTro === "Admin") {
+            roleText = "Quản trị hệ thống";
+        } else if (u.vaiTro === "QuanLy") {
+            roleText = "Quản lý thư viện";
+        } else if (u.vaiTro === "ThuThu") {
+            roleText = "Thủ thư";
+        }
+
+        const statusText = u.trangThai
+            ? "Hoạt động"
+            : "Không hoạt động";
+
+        const statusClass = u.trangThai
+            ? "bg-success"
+            : "bg-secondary";
+
+        return `
+            <tr>
+                <td>${escapeHtml(u.hoTen)}</td>
+                <td>${escapeHtml(u.email)}</td>
+                <td>
+                    <span class="badge bg-info text-dark">
+                        ${escapeHtml(roleText)}
+                    </span>
+                </td>
+                <td>
+                    <span class="badge ${statusClass}">
+                        ${statusText}
+                    </span>
+                </td>
+            </tr>
+        `;
+    }).join("");
+}
 
     function startEditUser(index) {
         const u = state.users[index];
@@ -371,19 +406,94 @@
         $("profileAddress").value = state.profile.address;
     }
 
-    function renderAll() {
-        renderLoginMeta();
-        renderUsers();
-        renderPendingReaders();
-        renderCards();
-        renderPolicies();
-        renderResetLogs();
-        renderAuthorsGenres();
-        renderShelves();
-        renderAudit();
-        populateProfile();
-        $("dueDateInput").value = state.dueDate;
+    async function loadVaiTro() {
+    try {
+        const response = await fetch("/Sprint1Lab/GetVaiTro");
+
+        if (!response.ok) {
+            throw new Error("Không thể tải danh sách vai trò.");
+        }
+
+        const vaiTros = await response.json();
+        const select = $("newUserRole");
+
+        select.innerHTML = `
+            <option value="">-- Chọn vai trò --</option>
+        `;
+
+        vaiTros.forEach((vaiTro) => {
+            let tenHienThi = vaiTro.ten;
+
+            if (vaiTro.ten === "Admin") {
+                tenHienThi = "Quản trị hệ thống";
+            } else if (vaiTro.ten === "QuanLy") {
+                tenHienThi = "Quản lý thư viện";
+            } else if (vaiTro.ten === "ThuThu") {
+                tenHienThi = "Thủ thư";
+            }
+
+            select.innerHTML += `
+                <option value="${vaiTro.id}">
+                    ${escapeHtml(tenHienThi)}
+                </option>
+            `;
+        });
+    } catch (error) {
+        console.error(error);
+
+        showToast(
+            "danger",
+            "Lỗi",
+            "Không thể tải danh sách vai trò."
+        );
     }
+}
+
+    async function loadTaiKhoan() {
+    try {
+        const response = await fetch("/Sprint1Lab/GetTaiKhoan");
+
+        if (!response.ok) {
+            throw new Error("Không thể tải danh sách tài khoản.");
+        }
+
+        const users = await response.json();
+
+        renderUsers(users);
+    } catch (error) {
+        console.error(error);
+
+        $("userTableBody").innerHTML = `
+            <tr>
+                <td colspan="4" class="text-center text-danger py-4">
+                    Không thể tải danh sách tài khoản.
+                </td>
+            </tr>
+        `;
+
+        showToast(
+            "danger",
+            "Lỗi",
+            "Không thể tải danh sách tài khoản từ máy chủ."
+        );
+    }
+}
+
+function renderAll() {
+    renderLoginMeta();
+    renderPendingReaders();
+    renderCards();
+    renderPolicies();
+    renderResetLogs();
+    renderAuthorsGenres();
+    renderShelves();
+    renderAudit();
+    populateProfile();
+    $("dueDateInput").value = state.dueDate;
+
+    loadVaiTro();
+    loadTaiKhoan();
+}
 
     $("btnLogin").addEventListener("click", () => {
         const email = $("loginEmail").value.trim();
@@ -446,43 +556,125 @@
         showToast("secondary", "Đã reset", "Trạng thái đăng nhập đã được xoá.");
     });
 
-    $("btnAddUser").addEventListener("click", () => {
-        const name = $("newUserName").value.trim();
-        const email = $("newUserEmail").value.trim();
-        const phone = $("newUserPhone").value.trim();
-        const role = $("newUserRole").value;
-        const status = $("newUserStatus").value;
+$("btnAddUser").addEventListener("click", async () => {
+    const hoTen = $("newUserName").value.trim();
+    const email = $("newUserEmail").value.trim();
+    const soDienThoai = $("newUserPhone").value.trim();
+    const vaiTroId = $("newUserRole").value;
+    const trangThai = $("newUserStatus").value === "true";
 
-        if (!name || !email.includes("@")) {
-            showToast("warning", "Thiếu dữ liệu", "Nhập họ tên và email hợp lệ.");
-            return;
-        }
-
-        const isEditing = state.editingUserIndex !== null && state.editingUserIndex !== undefined;
-
-        const duplicated = state.users.some((u, idx) =>
-            u.email.toLowerCase() === email.toLowerCase() && idx !== state.editingUserIndex
+    // Kiểm tra họ tên
+    if (!hoTen) {
+        showToast(
+            "warning",
+            "Thiếu thông tin",
+            "Vui lòng nhập họ tên."
         );
-        if (duplicated) {
-            showToast("danger", "Email bị trùng", "Email này đã có trong hệ thống mô phỏng.");
+        $("newUserName").focus();
+        return;
+    }
+
+    // Kiểm tra email
+    if (!email) {
+        showToast(
+            "warning",
+            "Thiếu thông tin",
+            "Vui lòng nhập email."
+        );
+        $("newUserEmail").focus();
+        return;
+    }
+
+    const emailRegex =
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(email)) {
+        showToast(
+            "warning",
+            "Email không hợp lệ",
+            "Vui lòng nhập đúng định dạng email."
+        );
+        $("newUserEmail").focus();
+        return;
+    }
+
+    // Kiểm tra vai trò
+    if (!vaiTroId) {
+        showToast(
+            "warning",
+            "Thiếu thông tin",
+            "Vui lòng chọn vai trò."
+        );
+        $("newUserRole").focus();
+        return;
+    }
+
+    const requestData = {
+        HoTen: hoTen,
+        Email: email,
+        SoDienThoai: soDienThoai || null,
+        VaiTroId: Number(vaiTroId),
+        TrangThai: trangThai
+    };
+
+    try {
+        const response = await fetch("/Sprint1Lab/TaoTaiKhoan", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(requestData)
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            if (result.errors) {
+                const messages = Object.values(result.errors)
+                    .flat()
+                    .filter(Boolean);
+
+                showToast(
+                    "danger",
+                    "Không thể tạo tài khoản",
+                    messages.join(" ")
+                );
+            } else {
+                showToast(
+                    "danger",
+                    "Không thể tạo tài khoản",
+                    result.message || "Có lỗi xảy ra."
+                );
+            }
+
             return;
         }
 
-        if (isEditing) {
-            state.users[state.editingUserIndex] = { name, email, role, status, phone };
-            renderUsers();
-            addAudit("Sửa tài khoản", `Tài khoản ${email}`);
-            showToast("success", "Đã cập nhật tài khoản", `${name} đã được cập nhật.`);
-            cancelEditUser();
-            return;
-        }
+        showToast(
+            "success",
+            "Thành công",
+            result.message || "Tạo tài khoản thành công."
+        );
 
-        state.users.unshift({ name, email, role, status, phone });
-        renderUsers();
-        addAudit("Tạo tài khoản", `Tài khoản ${email}`);
-        showToast("success", "Đã tạo tài khoản", `${name} đã được thêm vào danh sách.`);
-        cancelEditUser();
-    });
+        // Xóa dữ liệu form
+        $("newUserName").value = "";
+        $("newUserEmail").value = "";
+        $("newUserPhone").value = "";
+        $("newUserRole").value = "";
+
+        // Tải lại danh sách từ database
+        await loadTaiKhoan();
+
+    } catch (error) {
+        console.error(error);
+
+        showToast(
+            "danger",
+            "Lỗi kết nối",
+            "Không thể kết nối đến máy chủ."
+        );
+    }
+});
 
     $("btnCancelEditUser").addEventListener("click", () => {
         cancelEditUser();

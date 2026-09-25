@@ -138,17 +138,14 @@
                                 <div class="mb-2">
                                     <label class="form-label">Vai trò</label>
                                     <select id="newUserRole" class="form-select">
-                                        <option value="QuanLy">QuanLy</option>
-                                        <option value="ThuThu">ThuThu</option>
-                                        <option value="Admin">Admin</option>
+                                        <option value="">-- Chọn vai trò --</option>
                                     </select>
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">Trạng thái</label>
                                     <select id="newUserStatus" class="form-select">
-                                        <option value="Active">Active</option>
-                                        <option value="Pending">Pending</option>
-                                        <option value="Locked">Locked</option>
+                                        <option value="true">Hoạt động</option>
+                                        <option value="false">Không hoạt động</option>
                                     </select>
                                 </div>
                                 <div class="d-flex gap-2">
@@ -170,7 +167,9 @@
                                 </thead>
                                 <tbody id="userTableBody"></tbody>
                             </table>
-                            <div class="small text-muted">Các thay đổi trong màn này chỉ nằm trên UI test.</div>
+                            <div class="small text-muted">
+                                Danh sách tài khoản được lấy từ cơ sở dữ liệu.
+                            </div>
                         </div>
                     </div>
                 </div>
